@@ -54,6 +54,41 @@ function submitclicked() {
     chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
         url = tabs[0].url;
         console.log(url);
+        var misleading_rating = "";
+        var biased_rating = "";
+        var clarity_rating = "";
+
+        var misleading_list = document.getElementById('misleading_ul').getElementsByTagName('li');
+        for (var i = 0; i< misleading_list.length; i++) {
+            var radio_element = misleading_list[i].getElementsByTagName('input');
+            if (radio_element[0].checked == true)
+                misleading_rating = radio_element[0].value;
+        }
+
+        var biased_list = document.getElementById('biased_ul').getElementsByTagName('li');
+        for (var i = 0; i< biased_list.length; i++) {
+            var radio_element = biased_list[i].getElementsByTagName('input');
+            if (radio_element[0].checked == true)
+                biased_rating = radio_element[0].value;
+        }
+
+        var clear_list = document.getElementById('clear_ul').getElementsByTagName('li');
+        for (var i = 0; i< clear_list.length; i++) {
+            var radio_element = clear_list[i].getElementsByTagName('input');
+            if (radio_element[0].checked == true)
+                clarity_rating = radio_element[0].value;
+        }
+
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function() {
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+                record = xmlHttp.responseText;
+            }
+        }
+        //xmlHttp.open("GET", 'https://colon.umd.edu/totstoredata', true);
+        //xmlHttp.open("GET", 'http://127.0.0.1:6001/totstoredata?url='+url+"&misleading_rating="+misleading_rating+"&biased_rating="+biased_rating+"&clarity_rating="+clarity_rating, true);
+        xmlHttp.open("GET", 'https://colon.umd.edu/totstoredata?url='+url+"&misleading_rating="+misleading_rating+"&biased_rating="+biased_rating+"&clarity_rating="+clarity_rating, true);
+        xmlHttp.send(null);
         // use `url` here inside the callback because it's asynchronous!
     })
 }

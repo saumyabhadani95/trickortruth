@@ -20,21 +20,22 @@ def parse_html():
 	typee = soup.find("meta", {"property": "og:type"}).get("content")
 	return jsonify({"title":title,"description":description,"url":url,"type":typee})
 
-@app.route('/storedata', methods=['GET','POST'])
+@app.route('/totstoredata', methods=['GET','POST'])
 def store_data():
+	print("Here!!!")
 	cwd = os.getcwd()
 	urll = request.args.get('url')
 	misleading_rating = request.args.get('misleading_rating')
 	biased_rating = request.args.get('biased_rating')
 	clarity_rating = request.args.get('clarity_rating')
-	os.chdir("../data/collection/")
-	all_files = sorted(glob.glob("*.json.gz"))
+	os.chdir("../data/collection")
+	all_files = sorted(glob.glob("*.json"))
 	new_file_number = 1
 	if all_files:
 		latest_file = max(all_files, key=lambda fn: int(fn.split(".")[0]))
 		new_file_number = int(latest_file.split(".")[0]) + 1
 	with open(str(new_file_number)+".json","w") as fout:
-		fout.write(json.dumps({"url":url,"misleading_rating":misleading_rating,"biased_rating":biased_rating,"clarity_rating":clarity_rating}))
+		fout.write(json.dumps({"url":urll,"misleading_rating":misleading_rating,"biased_rating":biased_rating,"clarity_rating":clarity_rating}))
 	os.chdir(cwd)
 	return "Done!"
 
