@@ -1,0 +1,16 @@
+{
+  "name": "Trick or Truth",
+  "version": "1.0.0",
+  "description": "This is an extension to identify misleading headlines",
+  "manifest_version": 3,
+  "author": "Saumya Bhadani",
+  "action": {
+  	"default_icon" : "icons/halloween.png",
+  	"default_popup": "index.html",
+    "default_title": "Trick or Truth"
+  },
+  "permissions": ["declarativeContent","tabs"],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
