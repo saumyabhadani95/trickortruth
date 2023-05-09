@@ -8,17 +8,48 @@ app = Flask(__name__)
 
 app.debug = True
 
-@app.route('/parseHTML', methods=['GET'])
-def parse_html():
-	print("Here?????")
-	htmlpage = request.args.get('htmlpage')
-	soup = BeautifulSoup(htmlpage,"html.parser")
-	title = soup.find("meta", {"property": "og:title"}).get("content")
-	print(title)
-	description = soup.find("meta", {"property": "og:description"}).get("content")
-	url = soup.find("meta", {"property": "og:url"}).get("content")
-	typee = soup.find("meta", {"property": "og:type"}).get("content")
-	return jsonify({"title":title,"description":description,"url":url,"type":typee})
+@app.route('/totgetdata', methods=['GET','POST'])
+def get_data():
+	urll = request.args.get('url').strip()
+	cwd = os.getcwd()
+	os.chdir("../data/collection")
+	all_files = sorted(glob.glob("*.json"))
+	tot_data = 0
+	final_rating = 0
+	for filee in all_files:
+		with open(filee) as fin:
+			data = json.loads(fin.read())
+			url_data = data['url']
+			if url_data == urll:
+				tot_data = tot_data + 1
+				misleading_rating = data['misleading_rating']
+				if misleading_rating == "strong_disagree":
+					final_rating = final_rating + 1
+				elif misleading_rating == "disagree":
+					final_rating = final_rating + 2
+				elif misleading_rating == "neutral":
+					final_rating = final_rating + 3
+				elif misleading_rating == "agree":
+					final_rating = final_rating + 4
+				else:
+					final_rating = final_rating + 5
+	os.chdir(cwd)
+	if tot_data < 4:
+		return "NA"
+	else:
+		final_rating = final_rating/tot_data
+		print(final_rating)
+		if final_rating == 3.0:
+			return "NA"
+		elif final_rating < 2.0:
+			return "Very Misleading"
+		elif final_rating < 3.0:
+			return "Leans Misleading"
+		elif final_rating < 4.0:
+			return "Leans Accurate"
+		else:
+			return "Very Accurate"
+	return "Done!"
 
 @app.route('/totstoredata', methods=['GET','POST'])
 def store_data():

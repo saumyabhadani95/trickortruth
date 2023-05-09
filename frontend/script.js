@@ -1,19 +1,41 @@
-async function fetchData() {
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() {
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
-            record = JSON.parse(xmlHttp.responseText);
-            headline_list = record.posts;
-            console.log(headline_list);
-            headline_list_display = ""
-            for (var i=0;i<headline_list.length;i++)
-                headline_list_display = headline_list_display + "<li>"+ headline_list[i].title + "</li>"
-            //document.getElementById("concerts").innerHTML = record.posts.map(item => `<li>${item.title}</li>`).join('');
-            document.getElementById("headlines").innerHTML = headline_list_display;
+function checkResults() {
+    let url = "";
+    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+        url = tabs[0].url;
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function() {
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+                record = xmlHttp.responseText;
+                if (record != "NA") {
+                    console.log("Yahan aaya???");
+                    document.getElementById("message").innerHTML = "There are results!! Click the button to view them. But BEWARE you won't be able to take the survey if you view the results first.";
+                    document.getElementById("resultsbtn").style = "visibility:visible;";
+                }
+            }
         }
-    }
-    xmlHttp.open("GET", 'http://127.0.0.1:5000/getjson', true);
-    xmlHttp.send(null);
+        xmlHttp.open("GET", 'http://127.0.0.1:6001/totgetdata?url='+url);
+        xmlHttp.send(null);
+        // use `url` here inside the callback because it's asynchronous!
+    }) 
+}
+
+function viewresults() {
+    let url = "";
+    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+        url = tabs[0].url;
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function() {
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+                record = xmlHttp.responseText;
+                if (record != "NA") {
+                    document.getElementById("survey").innerHTML = "<h2>"+record+"</h2>";
+                }
+            }
+        }
+        xmlHttp.open("GET", 'http://127.0.0.1:6001/totgetdata?url='+url);
+        xmlHttp.send(null);
+        // use `url` here inside the callback because it's asynchronous!
+    })
 }
 
 function radioclicked() {
@@ -85,9 +107,7 @@ function submitclicked() {
                 record = xmlHttp.responseText;
             }
         }
-        //xmlHttp.open("GET", 'https://colon.umd.edu/totstoredata', true);
-        //xmlHttp.open("GET", 'http://127.0.0.1:6001/totstoredata?url='+url+"&misleading_rating="+misleading_rating+"&biased_rating="+biased_rating+"&clarity_rating="+clarity_rating, true);
-        xmlHttp.open("GET", 'https://colon.umd.edu/totstoredata?url='+url+"&misleading_rating="+misleading_rating+"&biased_rating="+biased_rating+"&clarity_rating="+clarity_rating, true);
+        xmlHttp.open("GET", 'http://127.0.0.1:6001/totstoredata?url='+url+"&misleading_rating="+misleading_rating+"&biased_rating="+biased_rating+"&clarity_rating="+clarity_rating, true);
         xmlHttp.send(null);
         // use `url` here inside the callback because it's asynchronous!
     })
@@ -161,6 +181,8 @@ function onWindowLoad() {
     return selector.outerHTML;
 }*/
 
+checkResults();
+document.getElementById("resultsbtn").addEventListener("click", viewresults);
 document.getElementById("clearbutton").addEventListener("click", clearscales);
 document.getElementById("submitbutton").addEventListener("click", submitclicked);
 document.getElementById("misleading_strong_agree").addEventListener("click", radioclicked);
